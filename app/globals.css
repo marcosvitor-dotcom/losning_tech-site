@@ -90,5 +90,20 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    background-image: url('/background_site.webp');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
+}
+
+.content-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.dark .content-container {
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
 }
