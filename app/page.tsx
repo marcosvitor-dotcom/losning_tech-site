@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Header } from "@/components/Header"
 import { ContactModal } from "@/components/ContactModal"
+import { HeroCarousel } from "@/components/HeroCarousel"
 import { ProductCarousel } from "@/components/ProductCarousel"
 import { ClientsCarousel } from "@/components/ClientsCarousel"
 import { BarChart3, Brain, Database, LineChart, TrendingUp, Users, Mail, Phone, MapPin, Building2 } from "lucide-react"
@@ -18,31 +19,13 @@ export default function Page() {
       <Header onContactClick={() => setIsContactModalOpen(true)} />
       <ContactModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 
-      {/* Main Content Container with scroll background */}
+      {/* Main Content Container - centro com gradiente nas bordas */}
       <div className="content-container">
         {/* Spacer for fixed header */}
         <div className="h-16"></div>
 
-        {/* Hero Section */}
-        <section className="py-20 md:py-32">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-6xl font-bold font-heading mb-6 text-balance">
-                Transformamos dados em decisões, e problemas em soluções inteligentes
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto">
-                A Losning Tech oferece soluções especializadas em Business Intelligence e desenvolvimento tecnológico inovador para empresas que buscam excelência em dados.
-              </p>
-              <Button
-                size="lg"
-                onClick={() => setIsContactModalOpen(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6"
-              >
-                Fale Conosco
-              </Button>
-            </div>
-          </div>
-        </section>
+        {/* Hero Carousel */}
+        <HeroCarousel onContactClick={() => setIsContactModalOpen(true)} />
 
         {/* Products Carousel */}
         <section className="py-20 bg-muted/30">

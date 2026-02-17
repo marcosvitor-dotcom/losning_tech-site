@@ -1,17 +1,15 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import Image from "next/image"
 
-// Placeholder para logos dos clientes - você adicionará as logos reais depois
+
 const clients = [
-  "Cliente 1",
-  "Cliente 2",
-  "Cliente 3",
-  "Cliente 4",
-  "Cliente 5",
-  "Cliente 6",
-  "Cliente 7",
-  "Cliente 8",
+  { name: "Artplan", logo: "/clientes/logo-artplan.png" },
+  { name: "BRB", logo: "/clientes/logo-brb.png" },
+  { name: "Senai", logo: "/clientes/Logo-SENAI.png" },
+  { name: "Nacional", logo: "/clientes/logo_nacional.png" },
+  { name: "Binder", logo: "/clientes/binder_logo.webp" }
 ]
 
 export function ClientsCarousel() {
@@ -53,23 +51,20 @@ export function ClientsCarousel() {
         style={{ scrollBehavior: "auto" }}
       >
         {/* Duplicamos os itens para criar o efeito infinito */}
-        {[...clients, ...clients].map((client, index) => (
-          <div
-            key={index}
-            className="inline-flex items-center justify-center min-w-[200px] h-24 bg-background border border-border rounded-lg px-8"
-          >
-            <div className="text-lg font-semibold text-muted-foreground">
-              {client}
+          {[...clients, ...clients].map((client, index) => (
+            <div
+              key={index}
+              className="inline-flex items-center justify-center min-w-[200px] h-24 bg-background border border-border rounded-lg px-8"
+            >
+              <Image
+                src={client.logo}
+                alt={client.name}
+                width={150}
+                height={60}
+                className="object-contain grayscale hover:grayscale-0 transition-all duration-300"
+              />
             </div>
-            {/* Substitua isso por <Image> quando adicionar as logos reais */}
-          </div>
-        ))}
-      </div>
-      <div className="text-center mt-6 text-sm text-muted-foreground">
-        <p>
-          As logos dos clientes serão adicionadas na pasta{" "}
-          <code className="bg-muted px-2 py-1 rounded">public/clientes</code>
-        </p>
+          ))}
       </div>
     </div>
   )

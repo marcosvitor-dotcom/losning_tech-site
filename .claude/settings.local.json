@@ -4,7 +4,9 @@
       "Bash(npm run build:*)",
       "Bash(timeout 15 npm run dev:*)",
       "Bash(taskkill:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(file:*)",
+      "Bash(npm install:*)"
     ]
   }
 }

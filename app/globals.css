@@ -89,21 +89,60 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    background-image: url('/background_site.webp');
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    @apply text-foreground;
   }
 }
 
+/* Background fixo - fora do @layer para ter prioridade máxima */
+html {
+  background-image: url('/background_site.webp') !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: #0a1628 !important;
+  min-height: 100vh;
+}
+
+body {
+  background: transparent !important;
+  min-height: 100vh;
+}
+
 .content-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #ffffff !important;
+  min-height: 100vh;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.2);
 }
 
 .dark .content-container {
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(10px);
+  background: #0a0a0a !important;
+}
+
+/* Animações para o Hero Carousel */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-fade-in-delay {
+  opacity: 0;
+  animation: fade-in 0.8s ease-out 0.2s forwards;
+}
+
+.animate-fade-in-delay-2 {
+  opacity: 0;
+  animation: fade-in 0.8s ease-out 0.4s forwards;
 }

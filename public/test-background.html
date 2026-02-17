@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Background</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('/background_site.webp');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #0a1628;
+            min-height: 100vh;
+        }
+        .content-container {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            min-height: 100vh;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-family: Arial, sans-serif;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <h1>Teste de Background</h1>
+        <p>Se você está vendo este texto sobre um fundo com efeito de blur, o background está funcionando!</p>
+        <p>O background deve ser uma imagem fixa que permanece no lugar enquanto você rola a página.</p>
+        <br><br><br><br><br><br><br><br><br><br>
+        <h2>Role para baixo...</h2>
+        <br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br>
+        <h2>Continue rolando...</h2>
+        <br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br>
+        <p>O background deve permanecer fixo!</p>
+    </div>
+</body>
+</html>
