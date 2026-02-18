@@ -33,24 +33,31 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulação de envio - aqui você integraria com seu CRM
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
 
-    console.log("Lead capturado:", formData)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao enviar mensagem.")
+      }
 
-    toast.success("Mensagem enviada com sucesso!", {
-      description: "Entraremos em contato em breve.",
-    })
+      toast.success("Mensagem enviada com sucesso!", {
+        description: "Nossa equipe entrará em contato em breve.",
+      })
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      company: "",
-      message: "",
-    })
-    setIsSubmitting(false)
-    onClose()
+      setFormData({ name: "", email: "", phone: "", company: "", message: "" })
+      onClose()
+    } catch (error: any) {
+      toast.error("Erro ao enviar mensagem.", {
+        description: error.message || "Tente novamente em instantes.",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
