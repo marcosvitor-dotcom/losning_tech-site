@@ -1,11 +1,5 @@
 import mongoose from "mongoose"
 
-const MONGODB_URI = process.env.MONGODB_URI!
-
-if (!MONGODB_URI) {
-  throw new Error("MONGODB_URI não definida no .env.local")
-}
-
 // Cache global para evitar múltiplas conexões em dev (hot reload)
 let cached = (global as any).__mongoose
 
@@ -14,6 +8,12 @@ if (!cached) {
 }
 
 export async function connectDB() {
+  const MONGODB_URI = process.env.MONGODB_URI
+
+  if (!MONGODB_URI) {
+    throw new Error("MONGODB_URI não definida no .env.local")
+  }
+
   if (cached.conn) return cached.conn
 
   if (!cached.promise) {
