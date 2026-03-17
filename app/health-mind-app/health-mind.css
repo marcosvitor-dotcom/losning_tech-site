@@ -1,26 +1,46 @@
 /* Health Mind — Custom Styles */
 
 :root {
-  --hm-rose: #C2748F;
-  --hm-rose-light: #E8A0B4;
-  --hm-rose-soft: #F5D5E0;
-  --hm-rose-pale: #FDF0F4;
-  --hm-lavender: #9B8EC4;
-  --hm-lavender-light: #C5BCE8;
-  --hm-lavender-pale: #F3F1FA;
-  --hm-sage: #7BA899;
-  --hm-sage-light: #A8D4CB;
-  --hm-sage-pale: #EDF6F4;
-  --hm-dark: #2D2435;
-  --hm-dark-soft: #4A3F55;
-  --hm-text: #3D3347;
-  --hm-text-muted: #8C7F99;
-  --hm-white: #FFFFFF;
-  --hm-off-white: #FAFAFA;
-  --hm-border: #EDE8F2;
+  /* ── Paleta principal: azul piscina ─────────────────────────────── */
+  --hm-teal:        #2A9D8F;   /* azul-piscina principal              */
+  --hm-teal-mid:    #3FB8A8;   /* variação mais clara                 */
+  --hm-teal-light:  #A8DADA;   /* tom pastel para ícones/badges       */
+  --hm-teal-pale:   #E8F7F6;   /* fundo suave                         */
+  --hm-teal-soft:   #C8ECEA;   /* bordas e divisores                  */
+
+  /* ── Acento: rosa bebê (detalhe feminino discreto) ─────────────── */
+  --hm-pink:        #E8A0B0;   /* rosa bebê principal                 */
+  --hm-pink-light:  #F5C8D4;   /* rosa mais claro                     */
+  --hm-pink-pale:   #FDF0F4;   /* fundo rosa ultra-suave              */
+  --hm-pink-soft:   #F5D5E0;   /* bordas rosa                         */
+
+  /* ── Azul complementar (profundidade) ──────────────────────────── */
+  --hm-blue:        #264653;   /* azul-petróleo escuro                */
+  --hm-blue-mid:    #3D7A8A;   /* azul médio                          */
+
+  /* ── Mantidos por compatibilidade com outros arquivos ──────────── */
+  --hm-rose:        var(--hm-teal);
+  --hm-rose-light:  var(--hm-teal-mid);
+  --hm-rose-soft:   var(--hm-teal-soft);
+  --hm-rose-pale:   var(--hm-teal-pale);
+  --hm-lavender:    var(--hm-blue-mid);
+  --hm-lavender-light: var(--hm-teal-light);
+  --hm-lavender-pale:  var(--hm-teal-pale);
+  --hm-sage:        var(--hm-pink);
+  --hm-sage-light:  var(--hm-pink-light);
+  --hm-sage-pale:   var(--hm-pink-pale);
+
+  /* ── Neutros ─────────────────────────────────────────────────────── */
+  --hm-dark:        #1B2E35;
+  --hm-dark-soft:   #2E4A52;
+  --hm-text:        #2C3E42;
+  --hm-text-muted:  #6B8088;
+  --hm-white:       #FFFFFF;
+  --hm-off-white:   #F7FAFA;
+  --hm-border:      #D6ECEA;
 
   --font-playfair: 'Playfair Display', Georgia, serif;
-  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-inter:    'Inter', system-ui, sans-serif;
 }
 
 .hm-body {
@@ -31,7 +51,6 @@
   min-height: 100vh;
 }
 
-/* Ensure hm-body covers the dark html background */
 .hm-body {
   position: relative;
   z-index: 1;
@@ -45,29 +64,29 @@
   z-index: -1;
 }
 
-/* Typography */
+/* ── Typography ─────────────────────────────────────────────────────── */
 .hm-heading {
   font-family: var(--font-playfair);
 }
 
-/* Gradient backgrounds */
+/* ── Gradients ──────────────────────────────────────────────────────── */
 .hm-gradient-hero {
-  background: linear-gradient(135deg, #FDF0F4 0%, #F3F1FA 50%, #EDF6F4 100%);
+  background: linear-gradient(135deg, #EAF6F5 0%, #F0F8F8 50%, var(--hm-pink-pale) 100%);
 }
 
 .hm-gradient-rose {
-  background: linear-gradient(135deg, var(--hm-rose) 0%, var(--hm-lavender) 100%);
+  background: linear-gradient(135deg, var(--hm-teal) 0%, var(--hm-blue-mid) 100%);
 }
 
 .hm-gradient-section {
-  background: linear-gradient(180deg, var(--hm-rose-pale) 0%, var(--hm-white) 100%);
+  background: linear-gradient(180deg, var(--hm-teal-pale) 0%, var(--hm-white) 100%);
 }
 
 .hm-gradient-soft {
-  background: linear-gradient(135deg, var(--hm-rose-pale) 0%, var(--hm-lavender-pale) 100%);
+  background: linear-gradient(135deg, var(--hm-teal-pale) 0%, var(--hm-pink-pale) 100%);
 }
 
-/* Card styles */
+/* ── Cards ──────────────────────────────────────────────────────────── */
 .hm-card {
   background: var(--hm-white);
   border: 1px solid var(--hm-border);
@@ -76,61 +95,62 @@
 }
 
 .hm-card:hover {
-  box-shadow: 0 12px 40px rgba(194, 116, 143, 0.12);
+  box-shadow: 0 12px 40px rgba(42, 157, 143, 0.10);
   transform: translateY(-2px);
 }
 
 .hm-card-soft {
-  background: var(--hm-rose-pale);
-  border: 1px solid var(--hm-rose-soft);
+  background: var(--hm-teal-pale);
+  border: 1px solid var(--hm-teal-soft);
   border-radius: 16px;
 }
 
-/* Buttons */
+/* ── Buttons ────────────────────────────────────────────────────────── */
 .hm-btn-primary {
-  background: linear-gradient(135deg, var(--hm-rose) 0%, var(--hm-lavender) 100%);
+  background: linear-gradient(135deg, var(--hm-teal) 0%, var(--hm-blue-mid) 100%);
   color: white;
   border: none;
   border-radius: 50px;
-  padding: 14px 32px;
+  padding: 11px 26px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   text-decoration: none;
+  letter-spacing: 0.01em;
 }
 
 .hm-btn-primary:hover {
   opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(194, 116, 143, 0.35);
+  box-shadow: 0 6px 20px rgba(42, 157, 143, 0.30);
 }
 
 .hm-btn-outline {
   background: transparent;
-  color: var(--hm-rose);
-  border: 2px solid var(--hm-rose);
+  color: var(--hm-teal);
+  border: 1.5px solid var(--hm-teal);
   border-radius: 50px;
-  padding: 12px 30px;
+  padding: 10px 24px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   text-decoration: none;
 }
 
 .hm-btn-outline:hover {
-  background: var(--hm-rose);
+  background: var(--hm-teal);
   color: white;
 }
 
-/* Feature icon */
+/* ── Icon badges ────────────────────────────────────────────────────── */
 .hm-icon-badge {
   width: 52px;
   height: 52px;
@@ -142,156 +162,240 @@
 }
 
 .hm-icon-rose {
-  background: var(--hm-rose-soft);
-  color: var(--hm-rose);
+  background: var(--hm-teal-pale);
+  color: var(--hm-teal);
 }
 
 .hm-icon-lavender {
-  background: var(--hm-lavender-light);
-  color: var(--hm-lavender);
+  background: var(--hm-teal-light);
+  color: var(--hm-blue-mid);
 }
 
 .hm-icon-sage {
-  background: var(--hm-sage-light);
-  color: var(--hm-sage);
+  background: var(--hm-pink-pale);
+  color: var(--hm-pink);
 }
 
-/* Badge */
+/* ── Badges ─────────────────────────────────────────────────────────── */
 .hm-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--hm-rose-soft);
-  color: var(--hm-rose);
+  background: var(--hm-teal-pale);
+  color: var(--hm-teal);
   border-radius: 50px;
-  padding: 6px 14px;
-  font-size: 13px;
+  padding: 5px 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  border: 1px solid var(--hm-teal-soft);
 }
 
 .hm-badge-lavender {
-  background: var(--hm-lavender-light);
-  color: var(--hm-lavender);
+  background: rgba(61, 122, 138, 0.10);
+  color: var(--hm-blue-mid);
+  border: 1px solid rgba(61, 122, 138, 0.20);
 }
 
 .hm-badge-sage {
-  background: var(--hm-sage-light);
-  color: var(--hm-sage);
+  background: var(--hm-pink-pale);
+  color: var(--hm-pink);
+  border: 1px solid var(--hm-pink-soft);
 }
 
-/* Section divider */
+/* ── Divider ────────────────────────────────────────────────────────── */
 .hm-divider {
-  width: 60px;
+  width: 40px;
   height: 3px;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--hm-rose) 0%, var(--hm-lavender) 100%);
+  background: linear-gradient(90deg, var(--hm-teal) 0%, var(--hm-pink) 100%);
   margin: 0 auto 24px auto;
 }
 
-/* Tab navigation */
+/* ── Tab nav ────────────────────────────────────────────────────────── */
 .hm-tab-nav {
   display: flex;
   gap: 4px;
-  background: var(--hm-border);
+  background: var(--hm-teal-pale);
   border-radius: 50px;
   padding: 4px;
+  border: 1px solid var(--hm-teal-soft);
 }
 
 .hm-tab-btn {
   flex: 1;
-  padding: 10px 20px;
+  padding: 9px 22px;
   border: none;
   border-radius: 50px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
   color: var(--hm-text-muted);
+  white-space: nowrap;
 }
 
 .hm-tab-btn.active {
   background: white;
-  color: var(--hm-rose);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  color: var(--hm-teal);
+  box-shadow: 0 2px 8px rgba(42, 157, 143, 0.15);
   font-weight: 600;
 }
 
-/* Animations */
+/* ── Animations ─────────────────────────────────────────────────────── */
 @keyframes hm-float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50%       { transform: translateY(-8px); }
 }
 
 @keyframes hm-pulse-soft {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  50%       { opacity: 0.7; }
 }
 
 @keyframes hm-fade-up {
   from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.hm-animate-float {
-  animation: hm-float 4s ease-in-out infinite;
+@keyframes hm-slide-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-.hm-animate-pulse {
-  animation: hm-pulse-soft 2.5s ease-in-out infinite;
-}
+.hm-animate-float     { animation: hm-float 4s ease-in-out infinite; }
+.hm-animate-pulse     { animation: hm-pulse-soft 2.5s ease-in-out infinite; }
+.hm-animate-fade-up   { animation: hm-fade-up 0.7s ease-out forwards; }
 
-.hm-animate-fade-up {
-  animation: hm-fade-up 0.7s ease-out forwards;
-}
-
-/* Security badge */
+/* ── Security pill ──────────────────────────────────────────────────── */
 .hm-security-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(123, 168, 153, 0.12);
-  border: 1px solid var(--hm-sage-light);
+  gap: 7px;
+  background: rgba(42, 157, 143, 0.07);
+  border: 1px solid var(--hm-teal-soft);
   border-radius: 50px;
-  padding: 8px 16px;
-  font-size: 13px;
-  color: var(--hm-sage);
+  padding: 7px 14px;
+  font-size: 12px;
+  color: var(--hm-teal);
   font-weight: 500;
 }
 
-/* Navbar */
+/* ── Navbar ─────────────────────────────────────────────────────────── */
 .hm-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
+  z-index: 200;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hm-border);
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Offcanvas ──────────────────────────────────────────────────────── */
+.hm-offcanvas-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 46, 53, 0.45);
+  z-index: 300;
+  backdrop-filter: blur(2px);
+  animation: hm-fade-up 0.2s ease;
+}
+
+.hm-offcanvas {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 85vw);
+  background: #fff;
+  z-index: 301;
+  display: flex;
+  flex-direction: column;
+  animation: hm-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -8px 0 40px rgba(27,46,53,0.18);
+}
+
+.hm-offcanvas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--hm-border);
 }
 
-/* Stat number */
+.hm-offcanvas-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hm-offcanvas-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--hm-text);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.hm-offcanvas-link:hover {
+  background: var(--hm-teal-pale);
+  color: var(--hm-teal);
+}
+
+.hm-offcanvas-divider {
+  height: 1px;
+  background: var(--hm-border);
+  margin: 8px 0;
+}
+
+.hm-offcanvas-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--hm-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Stat number ────────────────────────────────────────────────────── */
 .hm-stat-number {
   font-family: var(--font-playfair);
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--hm-rose) 0%, var(--hm-lavender) 100%);
+  background: linear-gradient(135deg, var(--hm-teal) 0%, var(--hm-blue-mid) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Quote / testimonial */
+/* ── Quote ──────────────────────────────────────────────────────────── */
 .hm-quote {
-  border-left: 3px solid var(--hm-rose-soft);
+  border-left: 3px solid var(--hm-teal-soft);
   padding-left: 20px;
 }
 
-/* Responsive utilities */
+/* ── Responsive ─────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .hm-heading { line-height: 1.25; }
-  .hm-tab-nav { flex-direction: column; border-radius: 16px; }
-  .hm-tab-btn { border-radius: 12px; }
+  .hm-heading    { line-height: 1.25; }
+  .hm-tab-nav    { flex-direction: column; border-radius: 16px; }
+  .hm-tab-btn    { border-radius: 12px; }
 }

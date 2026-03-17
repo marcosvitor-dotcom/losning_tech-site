@@ -6,7 +6,8 @@
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
       "Bash(file:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

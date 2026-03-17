@@ -57,113 +57,201 @@ function navigateToTab(tab: "psicologa" | "clinica" | "paciente") {
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 function NavBar() {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [offcanvasOpen, setOffcanvasOpen] = useState(false)
 
-  const navLinks: { tab?: "psicologa" | "clinica" | "paciente"; href: string; label: string }[] = [
-    { tab: "psicologa", href: "#audience-section", label: "Para Psicólogas" },
-    { tab: "clinica",   href: "#audience-section", label: "Para Clínicas" },
-    { tab: "paciente",  href: "#audience-section", label: "Para Pacientes" },
-    { href: "#seguranca", label: "Segurança" },
-    { href: "#recursos",  label: "Recursos" },
-  ]
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, tab?: "psicologa" | "clinica" | "paciente", href?: string) => {
-    if (tab) {
-      e.preventDefault()
-      navigateToTab(tab)
-    }
-    setMenuOpen(false)
-    if (href && !tab) {
-      const id = href.replace("#", "")
-      const el = document.getElementById(id)
-      if (el) {
-        e.preventDefault()
-        const y = el.getBoundingClientRect().top + window.scrollY - 80
-        window.scrollTo({ top: y, behavior: "smooth" })
-      }
+  const scrollTo = (id: string) => {
+    setOffcanvasOpen(false)
+    const el = document.getElementById(id)
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 68
+      window.scrollTo({ top: y, behavior: "smooth" })
     }
   }
 
+  const goToTab = (tab: "psicologa" | "clinica" | "paciente") => {
+    setOffcanvasOpen(false)
+    navigateToTab(tab)
+  }
+
+  // Trava o scroll do body quando offcanvas estiver aberto
+  useEffect(() => {
+    document.body.style.overflow = offcanvasOpen ? "hidden" : ""
+    return () => { document.body.style.overflow = "" }
+  }, [offcanvasOpen])
+
   return (
-    <nav className="hm-navbar">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <a href="#" className="flex items-center gap-3" style={{ textDecoration: 'none' }}
+    <>
+      <nav className="hm-navbar">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Logo */}
+          <a href="#" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}
             onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-            <Image
-              src="/health-mind-app/images/logo.png"
-              alt="Health Mind"
-              width={36}
-              height={36}
-              className="rounded-lg"
-            />
-            <span className="hm-heading font-bold text-lg" style={{ color: 'var(--hm-dark)' }}>
+            <Image src="/health-mind-app/images/favicon.png" alt="Health Mind" width={32} height={32} style={{ borderRadius: 8 }} />
+            <span className="hm-heading font-bold" style={{ fontSize: 16, color: 'var(--hm-dark)', letterSpacing: '-0.01em' }}>
               Health Mind
             </span>
           </a>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map(({ href, label, tab }) => (
-              <a
+          {/* Desktop: links centrais */}
+          <div className="hidden md:flex items-center gap-7">
+            {([
+              { label: "Psicólogos(as)", action: () => goToTab("psicologa") },
+              { label: "Clínicas",       action: () => goToTab("clinica") },
+              { label: "Pacientes",      action: () => goToTab("paciente") },
+              { label: "Segurança",      action: () => scrollTo("seguranca") },
+              { label: "Recursos",       action: () => scrollTo("recursos") },
+            ] as const).map(({ label, action }) => (
+              <button
                 key={label}
-                href={href}
-                className="text-sm font-medium transition-colors"
-                style={{ color: 'var(--hm-text-muted)' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-rose)')}
+                onClick={action}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 500, color: 'var(--hm-text-muted)',
+                  padding: 0, transition: 'color 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-teal)')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--hm-text-muted)')}
-                onClick={e => handleNavClick(e, tab, href)}
               >
                 {label}
-              </a>
+              </button>
             ))}
           </div>
 
+          {/* Desktop: CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            <a href="#contato" className="hm-btn-outline text-sm px-5 py-2"
-              onClick={e => handleNavClick(e, undefined, "#contato")}>
+            <button
+              onClick={() => scrollTo("contato")}
+              className="hm-btn-outline"
+              style={{ padding: '8px 18px', fontSize: 13 }}
+            >
               Fale conosco
-            </a>
+            </button>
+            <Link href="/health-mind-app/login" className="hm-btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+              </svg>
+              Área de Acesso
+            </Link>
           </div>
 
-          {/* Mobile menu toggle */}
-          <button
-            className="md:hidden p-2 rounded-lg"
-            style={{ color: 'var(--hm-rose)' }}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {menuOpen
-                ? <><path d="M18 6L6 18M6 6l12 12" /></>
-                : <><path d="M3 12h18M3 6h18M3 18h18" /></>}
-            </svg>
-          </button>
+          {/* Mobile: botões direita */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link href="/health-mind-app/login" className="hm-btn-primary" style={{ padding: '7px 14px', fontSize: 12 }}>
+              Entrar
+            </Link>
+            <button
+              onClick={() => setOffcanvasOpen(true)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: 'var(--hm-dark)' }}
+              aria-label="Abrir menu"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12h18M3 6h18M3 18h12" />
+              </svg>
+            </button>
+          </div>
         </div>
+      </nav>
 
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden pb-4 border-t" style={{ borderColor: 'var(--hm-border)' }}>
-            <div className="flex flex-col gap-3 pt-4">
-              {navLinks.map(({ href, label, tab }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="text-sm font-medium py-2"
-                  style={{ color: 'var(--hm-text)' }}
-                  onClick={e => handleNavClick(e, tab, href)}
-                >
-                  {label}
-                </a>
-              ))}
-              <a href="#contato" className="hm-btn-primary text-sm mt-2 justify-center"
-                onClick={e => handleNavClick(e, undefined, "#contato")}>
-                Fale conosco
-              </a>
+      {/* ── Offcanvas overlay ──────────────────────────────────────────── */}
+      {offcanvasOpen && (
+        <>
+          <div className="hm-offcanvas-overlay" onClick={() => setOffcanvasOpen(false)} />
+          <aside className="hm-offcanvas">
+            {/* Header */}
+            <div className="hm-offcanvas-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Image src="/health-mind-app/images/favicon.png" alt="Health Mind" width={26} height={26} style={{ borderRadius: 6 }} />
+                <span className="hm-heading font-bold" style={{ fontSize: 14, color: 'var(--hm-dark)' }}>Health Mind</span>
+              </div>
+              <button
+                onClick={() => setOffcanvasOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--hm-text-muted)', borderRadius: 6 }}
+                aria-label="Fechar menu"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          </div>
-        )}
-      </div>
-    </nav>
+
+            {/* Body */}
+            <div className="hm-offcanvas-body">
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--hm-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px 8px' }}>
+                Para quem é
+              </p>
+              {([
+                { label: "Psicólogos(as)", desc: "Agenda, prontuário, financeiro", action: () => goToTab("psicologa") },
+                { label: "Clínicas",       desc: "Salas, psicólogos, financeiro",  action: () => goToTab("clinica") },
+                { label: "Pacientes",      desc: "Consultas, assistente, chat",    action: () => goToTab("paciente") },
+              ]).map(({ label, desc, action }) => (
+                <button key={label} onClick={action} className="hm-offcanvas-link">
+                  <div style={{
+                    width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+                    background: 'var(--hm-teal-pale)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--hm-teal)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--hm-dark)' }}>{label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--hm-text-muted)' }}>{desc}</div>
+                  </div>
+                </button>
+              ))}
+
+              <div className="hm-offcanvas-divider" />
+
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--hm-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px 8px' }}>
+                Plataforma
+              </p>
+              {([
+                { label: "Segurança & Privacidade", action: () => scrollTo("seguranca") },
+                { label: "Recursos do CFP",         action: () => scrollTo("recursos") },
+                { label: "Fale Conosco",            action: () => scrollTo("contato") },
+              ]).map(({ label, action }) => (
+                <button key={label} onClick={action} className="hm-offcanvas-link" style={{ paddingLeft: 16 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--hm-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                  <span style={{ fontSize: 13 }}>{label}</span>
+                </button>
+              ))}
+
+              <div className="hm-offcanvas-divider" />
+
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--hm-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 14px 8px' }}>
+                Legal
+              </p>
+              {([
+                { label: "Política de Privacidade", href: "/health-mind-app/privacy" },
+                { label: "Direitos Autorais",       href: "/health-mind-app/copyright" },
+                { label: "Suporte",                 href: "/health-mind-app/suporte" },
+              ]).map(({ label, href }) => (
+                <Link key={label} href={href} className="hm-offcanvas-link" onClick={() => setOffcanvasOpen(false)}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--hm-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
+                  </svg>
+                  <span style={{ fontSize: 13 }}>{label}</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="hm-offcanvas-footer">
+              <Link href="/health-mind-app/login" className="hm-btn-primary" style={{ justifyContent: 'center', borderRadius: 12 }}
+                onClick={() => setOffcanvasOpen(false)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                </svg>
+                Acessar Plataforma
+              </Link>
+            </div>
+          </aside>
+        </>
+      )}
+    </>
   )
 }
 
@@ -180,7 +268,7 @@ function Hero() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d={icons.sparkle} />
                 </svg>
-                Assistente configurado pelo próprio psicólogo
+                Assistente configurado pelo(a) próprio(a) psicólogo(a)
               </span>
             </div>
 
@@ -191,7 +279,7 @@ function Hero() {
 
             <p className="text-lg leading-relaxed mb-8" style={{ color: 'var(--hm-text-muted)' }}>
               Health Mind é uma plataforma completa de saúde mental que conecta{" "}
-              <strong style={{ color: 'var(--hm-text)' }}>pacientes, psicólogas e clínicas</strong>{" "}
+              <strong style={{ color: 'var(--hm-text)' }}>pacientes, psicólogos(as) e clínicas</strong>{" "}
               em um único aplicativo seguro, intuitivo e com suporte de IA 24 horas.
             </p>
 
@@ -285,8 +373,8 @@ function Hero() {
 // ─── Stats ────────────────────────────────────────────────────────────────────
 function Stats() {
   const stats = [
-    { value: "3", label: "Perfis integrados", sub: "Paciente · Psicóloga · Clínica" },
-    { value: "24h", label: "Apoio entre sessões", sub: "Assistente configurado pela psicóloga" },
+    { value: "3", label: "Perfis integrados", sub: "Paciente · Psicólogo(a) · Clínica" },
+    { value: "24h", label: "Apoio entre sessões", sub: "Assistente configurado pelo(a) psicólogo(a)" },
     { value: "AES‑256", label: "Criptografia", sub: "Dados sensíveis protegidos" },
     { value: "LGPD", label: "Conformidade", sub: "Resoluções CFP atendidas" },
   ]
@@ -323,9 +411,9 @@ function AudienceSection() {
 
   const content = {
     psicologa: {
-      badge: "Para Psicólogas",
+      badge: "Para Psicólogos(as)",
       badgeClass: "hm-badge",
-      title: "Tudo que você precisa para atender com excelência",
+      title: "Tudo o que você precisa para atender com excelência",
       description: "Gerencie seus pacientes, prontuários, agenda e finanças em um só lugar. Com relatórios gerados por IA, você ganha mais tempo para o que realmente importa: o cuidado.",
       color: "var(--hm-rose)",
       features: [
@@ -365,13 +453,13 @@ function AudienceSection() {
       badge: "Para Clínicas",
       badgeClass: "hm-badge-lavender",
       title: "Administre sua clínica com total controle",
-      description: "Gerencie salas, psicólogas, pacientes e finanças com visibilidade completa. A divisão automática de valores simplifica a operação do dia a dia.",
+      description: "Gerencie salas, psicólogos(as), pacientes e finanças com visibilidade completa. A divisão automática de valores simplifica a operação do dia a dia.",
       color: "var(--hm-lavender)",
       features: [
         {
           icon: icons.building, iconClass: "hm-icon-lavender",
           title: "Painel Administrativo",
-          desc: "Visão geral de psicólogas, pacientes, consultas do dia e taxa de ocupação das salas."
+          desc: "Visão geral de psicólogos(as), pacientes, consultas do dia e taxa de ocupação das salas."
         },
         {
           icon: icons.users, iconClass: "hm-icon-rose",
@@ -381,7 +469,7 @@ function AudienceSection() {
         {
           icon: icons.dollar, iconClass: "hm-icon-sage",
           title: "Divisão Automática",
-          desc: "Divisão de valores entre clínica e psicóloga por sessão, com controle de sublocações."
+          desc: "Divisão de valores entre clínica e psicólogo(a) por sessão, com controle de sublocações."
         },
         {
           icon: icons.trending, iconClass: "hm-icon-lavender",
@@ -391,7 +479,7 @@ function AudienceSection() {
         {
           icon: icons.bell, iconClass: "hm-icon-rose",
           title: "Convite e Gestão",
-          desc: "Convide e gerencie psicólogas e pacientes afiliados com acompanhamento de status."
+          desc: "Convide e gerencie psicólogos(as) e pacientes afiliados com acompanhamento de status."
         },
         {
           icon: icons.chart, iconClass: "hm-icon-lavender",
@@ -404,13 +492,13 @@ function AudienceSection() {
       badge: "Para Pacientes",
       badgeClass: "hm-badge-sage",
       title: "Cuide da sua saúde mental com acolhimento e praticidade",
-      description: "Acesse apoio emocional a qualquer hora, agende consultas com facilidade e mantenha uma comunicação segura com sua psicóloga.",
+      description: "Acesse apoio emocional a qualquer hora, agende consultas com facilidade e mantenha uma comunicação segura com seu(sua) psicólogo(a).",
       color: "var(--hm-sage)",
       features: [
         {
           icon: icons.brain, iconClass: "hm-icon-sage",
           title: "Assistente terapêutico",
-          desc: "Um espaço de acolhimento disponível 24h, configurado pela sua psicóloga com a abordagem e o estilo dela — para estar com você entre as sessões."
+          desc: "Um espaço de acolhimento disponível 24h, configurado pelo(a) seu(sua) psicólogo(a) com a abordagem e o estilo dele(a) — para estar com você entre as sessões."
         },
         {
           icon: icons.calendar, iconClass: "hm-icon-rose",
@@ -420,7 +508,7 @@ function AudienceSection() {
         {
           icon: icons.message, iconClass: "hm-icon-lavender",
           title: "Mensagens Seguras",
-          desc: "Comunicação criptografada diretamente com sua psicóloga dentro do app."
+          desc: "Comunicação criptografada diretamente com seu(sua) psicólogo(a) dentro do app."
         },
         {
           icon: icons.file, iconClass: "hm-icon-sage",
@@ -450,7 +538,7 @@ function AudienceSection() {
         <div className="flex justify-center mb-12">
           <div className="hm-tab-nav inline-flex">
             {(["psicologa", "clinica", "paciente"] as const).map((t) => {
-              const labels = { psicologa: "Psicólogas", clinica: "Clínicas", paciente: "Pacientes" }
+              const labels = { psicologa: "Psicólogos(as)", clinica: "Clínicas", paciente: "Pacientes" }
               return (
                 <button
                   key={t}
@@ -511,7 +599,7 @@ function AISection() {
           </h2>
           <div className="hm-divider"></div>
           <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--hm-text-muted)' }}>
-            O assistente <strong style={{ color: 'var(--hm-text)' }}>não faz terapia</strong> — ele é configurado pela psicóloga para ser uma presença acolhedora <strong style={{ color: 'var(--hm-text)' }}>entre as sessões</strong>, baseada na sua abordagem e no seu jeito de cuidar.
+            O assistente <strong style={{ color: 'var(--hm-text)' }}>não faz terapia</strong> — ele é configurado pelo(a) psicólogo(a) para ser uma presença acolhedora <strong style={{ color: 'var(--hm-text)' }}>entre as sessões</strong>, baseada na sua abordagem e no seu jeito de cuidar.
           </p>
         </div>
 
@@ -561,10 +649,10 @@ function AISection() {
                     <path d={icons.users} />
                   </svg>
                 </div>
-                <h3 className="font-bold" style={{ color: 'var(--hm-dark)' }}>Configurado pela psicóloga, no cadastro</h3>
+                <h3 className="font-bold" style={{ color: 'var(--hm-dark)' }}>Configurado pelo(a) psicólogo(a), no cadastro</h3>
               </div>
               <p className="text-sm leading-relaxed" style={{ color: 'var(--hm-text-muted)' }}>
-                Durante o cadastro, a psicóloga responde um questionário sobre sua abordagem terapêutica (Gestalt, TCC, Psicanálise…), seus públicos de especialização, seu estilo de comunicação e suas técnicas favoritas. Com isso, a IA é personalizada para falar e acolher como ela faria.
+                Durante o cadastro, o(a) psicólogo(a) responde um questionário sobre sua abordagem terapêutica (Gestalt, TCC, Psicanálise…), seus públicos de especialização, seu estilo de comunicação e suas técnicas favoritas. Com isso, a IA é personalizada para falar e acolher como ele(a) faria.
               </p>
             </div>
 
@@ -574,7 +662,7 @@ function AISection() {
                 {
                   icon: icons.heart,
                   title: "Acolhimento entre sessões",
-                  desc: "O paciente tem um espaço para registrar pensamentos, emoções e situações do cotidiano — com respostas no tom e na abordagem da sua psicóloga."
+                  desc: "O paciente tem um espaço para registrar pensamentos, emoções e situações do cotidiano — com respostas no tom e na abordagem do(a) seu(sua) psicólogo(a)."
                 },
                 {
                   icon: icons.mic,
@@ -583,7 +671,7 @@ function AISection() {
                 },
                 {
                   icon: icons.trending,
-                  title: "Relatórios para a psicóloga",
+                  title: "Relatórios para o(a) psicólogo(a)",
                   desc: "A IA identifica temas, padrões emocionais e comportamentais e gera relatórios estruturados para enriquecer as sessões presenciais."
                 },
                 {
@@ -616,7 +704,7 @@ function AISection() {
             </svg>
           </div>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--hm-text-muted)' }}>
-            <strong style={{ color: 'var(--hm-dark)' }}>Importante:</strong> O assistente é desenvolvido em conformidade com as resoluções do Conselho Federal de Psicologia e as diretrizes éticas para uso de IA na prática clínica. Ele nunca faz diagnósticos, não substitui a psicóloga e prioriza sempre a segurança do paciente — incluindo protocolos de emergência para situações de crise.
+            <strong style={{ color: 'var(--hm-dark)' }}>Importante:</strong> O assistente é desenvolvido em conformidade com as resoluções do Conselho Federal de Psicologia e as diretrizes éticas para uso de IA na prática clínica. Ele nunca faz diagnósticos, não substitui o(a) psicólogo(a) e prioriza sempre a segurança do paciente — incluindo protocolos de emergência para situações de crise.
           </p>
         </div>
 
@@ -661,7 +749,7 @@ function SecuritySection() {
             {
               icon: icons.users, iconClass: "hm-icon-lavender",
               title: "Controle de Acesso",
-              desc: "Cada perfil (paciente, psicóloga, clínica) acessa somente o que lhe é pertinente."
+              desc: "Cada perfil (paciente, psicólogo(a), clínica) acessa somente o que lhe é pertinente."
             },
           ].map(({ icon, iconClass, title, desc }) => (
             <div key={title} className="hm-card p-6 text-center">
@@ -703,7 +791,7 @@ function ResourcesSection() {
         <div className="text-center mb-12">
           <span className="hm-badge mb-4 inline-flex">Materiais do CFP</span>
           <h2 className="hm-heading text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--hm-dark)' }}>
-            Recursos para psicólogas
+            Recursos para psicólogos(as)
           </h2>
           <div className="hm-divider"></div>
           <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--hm-text-muted)' }}>
@@ -810,10 +898,10 @@ function CTASection() {
             </svg>
           </div>
           <h2 className="hm-heading text-3xl md:text-4xl font-bold text-white mb-4">
-            Pronta para transformar sua prática?
+            Pronto(a) para transformar sua prática?
           </h2>
           <p className="text-lg text-white/80 max-w-xl mx-auto mb-8">
-            Junte-se às psicólogas e clínicas que já utilizam o Health Mind para oferecer um cuidado mais eficiente, seguro e humano.
+            Junte-se aos psicólogos(as) e clínicas que já utilizam o Health Mind para oferecer um cuidado mais eficiente, seguro e humano.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
@@ -853,7 +941,7 @@ function Footer() {
           {/* Health Mind brand */}
           <div className="flex items-center gap-3">
             <Image
-              src="/health-mind-app/images/logo.png"
+              src="/health-mind-app/images/favicon.png"
               alt="Health Mind"
               width={32}
               height={32}
@@ -867,19 +955,27 @@ function Footer() {
 
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm" style={{ color: 'var(--hm-text-muted)' }}>
-            <Link href="/health-mind-app/privacy" className="hover:text-rose-500 transition-colors" style={{ color: 'var(--hm-text-muted)' }}
+            <Link href="/health-mind-app/privacy" style={{ color: 'var(--hm-text-muted)' }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-rose)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--hm-text-muted)')}>
               Política de Privacidade
             </Link>
-            <a href="#recursos" className="hover:text-rose-500 transition-colors"
-              style={{ color: 'var(--hm-text-muted)' }}
+            <Link href="/health-mind-app/suporte" style={{ color: 'var(--hm-text-muted)' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-rose)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--hm-text-muted)')}>
+              Suporte
+            </Link>
+            <Link href="/health-mind-app/copyright" style={{ color: 'var(--hm-text-muted)' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-rose)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--hm-text-muted)')}>
+              Direitos Autorais
+            </Link>
+            <a href="#recursos" style={{ color: 'var(--hm-text-muted)' }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-rose)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--hm-text-muted)')}>
               Cartilhas CFP
             </a>
-            <a href="mailto:contato@losningtech.com.br" className="transition-colors"
-              style={{ color: 'var(--hm-text-muted)' }}
+            <a href="mailto:contato@losningtech.com.br" style={{ color: 'var(--hm-text-muted)' }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--hm-rose)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--hm-text-muted)')}>
               contato@losningtech.com.br
