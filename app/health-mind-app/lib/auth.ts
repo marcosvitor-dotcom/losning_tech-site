@@ -43,10 +43,12 @@ export function isAuthenticated(): boolean {
   return !!getToken()
 }
 
+// Proxy interno do Next.js → evita problema de CORS e env vars no browser
+const HM_PROXY = '/api/hm'
+
 // Chama a API de login e retorna { token, user }
 export async function apiLogin(email: string, password: string): Promise<{ token: string; user: HMUser }> {
-  const base = process.env.NEXT_PUBLIC_HEALTH_MIND_API_URL || ''
-  const res = await fetch(`${base}/api/auth/login`, {
+  const res = await fetch(`${HM_PROXY}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -62,9 +64,8 @@ export async function apiLogin(email: string, password: string): Promise<{ token
 
 // Busca os tickets de suporte do usuário autenticado
 export async function apiGetMyTickets() {
-  const base = process.env.NEXT_PUBLIC_HEALTH_MIND_API_URL || ''
   const token = getToken()
-  const res = await fetch(`${base}/api/support`, {
+  const res = await fetch(`${HM_PROXY}/support`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   const data = await res.json()
@@ -74,9 +75,8 @@ export async function apiGetMyTickets() {
 
 // Cria um ticket de suporte
 export async function apiCreateTicket(subject: string, message: string) {
-  const base = process.env.NEXT_PUBLIC_HEALTH_MIND_API_URL || ''
   const token = getToken()
-  const res = await fetch(`${base}/api/support`, {
+  const res = await fetch(`${HM_PROXY}/support`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ subject, message }),

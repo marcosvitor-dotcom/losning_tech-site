@@ -58,7 +58,7 @@ const STATUS_COLOR: Record<string, string> = {
 
 // ─── Fetch helpers ────────────────────────────────────────────────────────────
 async function fetchStats(token: string, userId: string): Promise<Stats> {
-  const base = process.env.NEXT_PUBLIC_HEALTH_MIND_API_URL || ""
+  const base = "/api/hm"
   const h = { Authorization: `Bearer ${token}` }
 
   const today = new Date()
@@ -68,10 +68,10 @@ async function fetchStats(token: string, userId: string): Promise<Stats> {
 
   // chamadas paralelas aos endpoints reais
   const [psychRes, patientsRes, todayRes, allRes] = await Promise.all([
-    fetch(`${base}/api/psychologists/${userId}`, { headers: h }),
-    fetch(`${base}/api/psychologists/${userId}/patients?limit=1`, { headers: h }),
-    fetch(`${base}/api/appointments/psychologist/${userId}?startDate=${today.toISOString()}&endDate=${tomorrow.toISOString()}&limit=50`, { headers: h }),
-    fetch(`${base}/api/appointments/psychologist/${userId}?limit=200`, { headers: h }),
+    fetch(`${base}/psychologists/${userId}`, { headers: h }),
+    fetch(`${base}/psychologists/${userId}/patients?limit=1`, { headers: h }),
+    fetch(`${base}/appointments/psychologist/${userId}?startDate=${today.toISOString()}&endDate=${tomorrow.toISOString()}&limit=50`, { headers: h }),
+    fetch(`${base}/appointments/psychologist/${userId}?limit=200`, { headers: h }),
   ])
 
   const [psychData, patientsData, todayData, allData] = await Promise.all([

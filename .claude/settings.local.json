@@ -7,7 +7,8 @@
       "Bash(netstat:*)",
       "Bash(file:*)",
       "Bash(npm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find c:/Users/marco/OneDrive/Desktop/health_mind_ai/api-health-mind -name .env*)"
     ]
   }
 }

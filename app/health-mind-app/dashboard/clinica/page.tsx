@@ -25,12 +25,12 @@ interface ClinicProfile {
 
 // ─── Fetch ────────────────────────────────────────────────────────────────────
 async function fetchClinicData(token: string, userId: string) {
-  const base = process.env.NEXT_PUBLIC_HEALTH_MIND_API_URL || ""
+  const base = "/api/hm"
   const h = { Authorization: `Bearer ${token}` }
 
   const [profileRes, statsRes] = await Promise.all([
-    fetch(`${base}/api/clinics/${userId}`, { headers: h }),
-    fetch(`${base}/api/clinics/${userId}/stats`, { headers: h }),
+    fetch(`${base}/clinics/${userId}`, { headers: h }),
+    fetch(`${base}/clinics/${userId}/stats`, { headers: h }),
   ])
 
   const [profileData, statsData] = await Promise.all([profileRes.json(), statsRes.json()])
