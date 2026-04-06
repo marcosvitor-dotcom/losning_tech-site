@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const API_BASE = process.env.HEALTH_MIND_API_URL || "https://health-mind-api.vercel.app"
+const API_BASE = process.env.HEALTH_MIND_API_URL || "https://health-mind-app.vercel.app"
 
 async function proxy(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path: pathSegments } = await params
