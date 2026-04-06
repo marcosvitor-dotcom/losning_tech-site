@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 
 const API_BASE = process.env.HEALTH_MIND_API_URL || "https://health-mind-api.vercel.app"
 
-async function proxy(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join("/")
+async function proxy(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathSegments } = await params
+  const path = pathSegments.join("/")
   const url = new URL(req.url)
   const targetUrl = `${API_BASE}/api/${path}${url.search}`
 
@@ -31,18 +32,18 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
   })
 }
 
-export async function GET(req: NextRequest, ctx: { params: { path: string[] } }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   return proxy(req, ctx)
 }
-export async function POST(req: NextRequest, ctx: { params: { path: string[] } }) {
+export async function POST(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   return proxy(req, ctx)
 }
-export async function PUT(req: NextRequest, ctx: { params: { path: string[] } }) {
+export async function PUT(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   return proxy(req, ctx)
 }
-export async function PATCH(req: NextRequest, ctx: { params: { path: string[] } }) {
+export async function PATCH(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   return proxy(req, ctx)
 }
-export async function DELETE(req: NextRequest, ctx: { params: { path: string[] } }) {
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   return proxy(req, ctx)
 }

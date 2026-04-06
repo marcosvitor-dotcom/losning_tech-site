@@ -99,6 +99,7 @@ function NavBar() {
               { label: "Clínicas",       action: () => goToTab("clinica") },
               { label: "Pacientes",      action: () => goToTab("paciente") },
               { label: "Segurança",      action: () => scrollTo("seguranca") },
+              { label: "Planos",         action: () => scrollTo("planos") },
               { label: "Recursos",       action: () => scrollTo("recursos") },
             ] as const).map(({ label, action }) => (
               <button
@@ -208,6 +209,7 @@ function NavBar() {
               </p>
               {([
                 { label: "Segurança & Privacidade", action: () => scrollTo("seguranca") },
+                { label: "Planos e Preços",         action: () => scrollTo("planos") },
                 { label: "Recursos do CFP",         action: () => scrollTo("recursos") },
                 { label: "Fale Conosco",            action: () => scrollTo("contato") },
               ]).map(({ label, action }) => (
@@ -799,7 +801,7 @@ function ResourcesSection() {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {[
             {
               href: "/health-mind-app/documentos/Cartilha_IA_A5-1.pdf",
@@ -814,6 +816,13 @@ function ResourcesSection() {
               title: "Chatbots e IA na Saúde Mental",
               desc: "Orientações do CFP sobre chatbots com IA no contexto da saúde mental e atendimento psicológico.",
               badge: "CFP · PDF"
+            },
+            {
+              href: "/health-mind-app/documentos/Manual Orientativo registro o elaboração de documentos psicologicos.pdf",
+              icon: icons.file,
+              title: "Manual Orientativo de Documentos Psicológicos",
+              desc: "Manual com orientações sobre o registro e elaboração de documentos psicológicos.",
+              badge: "Manual · PDF"
             }
           ].map(({ href, icon, title, desc, badge }) => (
             <a
@@ -932,6 +941,195 @@ function CTASection() {
   )
 }
 
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+function PricingSection() {
+  const [audience, setAudience] = useState<"psicologo" | "clinica">("psicologo")
+
+  const plans = {
+    psicologo: [
+      {
+        key: "psico_consciencia",
+        name: "Consciência",
+        price: 300,
+        setupFee: 0,
+        patients: 5,
+        highlight: false,
+        features: ["Até 5 pacientes ativos", "Agenda e prontuário", "Relatórios terapêuticos IA", "Chat seguro com pacientes", "Documentos psicológicos", "Suporte por e-mail"],
+      },
+      {
+        key: "psico_equilibrio",
+        name: "Equilíbrio",
+        price: 500,
+        setupFee: 150,
+        patients: 10,
+        highlight: true,
+        features: ["Até 10 pacientes ativos", "Agenda e prontuário", "Relatórios terapêuticos IA", "Chat seguro com pacientes", "Documentos psicológicos", "Videoconferência integrada", "Suporte prioritário"],
+      },
+      {
+        key: "psico_plenitude",
+        name: "Plenitude",
+        price: 700,
+        setupFee: 150,
+        patients: 15,
+        highlight: false,
+        features: ["Até 15 pacientes ativos", "Agenda e prontuário", "Relatórios terapêuticos IA", "Chat seguro com pacientes", "Documentos psicológicos", "Videoconferência integrada", "Anamnese digital", "Suporte prioritário"],
+      },
+    ],
+    clinica: [
+      {
+        key: "clinic_essencia",
+        name: "Essência",
+        price: 800,
+        setupFee: 350,
+        patients: 15,
+        psychologists: 3,
+        highlight: false,
+        features: ["Até 3 psicólogos(as)", "Até 15 pacientes", "Gestão de salas", "Financeiro da clínica", "Agenda unificada", "Suporte por e-mail"],
+      },
+      {
+        key: "clinic_amplitude",
+        name: "Amplitude",
+        price: 1200,
+        setupFee: 350,
+        patients: 25,
+        psychologists: 5,
+        highlight: true,
+        features: ["Até 5 psicólogos(as)", "Até 25 pacientes", "Gestão de salas e sublocações", "Financeiro avançado", "Agenda unificada", "Relatórios por psicólogo", "Suporte prioritário"],
+      },
+    ],
+  }
+
+  const current = plans[audience]
+
+  return (
+    <section id="planos" className="py-20" style={{ background: 'var(--hm-bg)' }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <span className="hm-badge mb-4 inline-flex">Planos e Preços</span>
+          <h2 className="hm-heading text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--hm-dark)' }}>
+            Escolha o plano ideal para você
+          </h2>
+          <div className="hm-divider" />
+          <p className="text-lg max-w-2xl mx-auto mb-8" style={{ color: 'var(--hm-text-muted)' }}>
+            Pagamento seguro via Mercado Pago. Sua conta é criada automaticamente após a confirmação.
+          </p>
+
+          {/* Toggle psicólogo / clínica */}
+          <div style={{ display: 'inline-flex', background: 'var(--hm-card)', borderRadius: 50, padding: 4, boxShadow: '0 1px 8px rgba(0,0,0,0.08)', gap: 4 }}>
+            {(['psicologo', 'clinica'] as const).map(a => (
+              <button
+                key={a}
+                onClick={() => setAudience(a)}
+                style={{
+                  padding: '10px 28px', borderRadius: 50, border: 'none', cursor: 'pointer',
+                  fontWeight: 700, fontSize: 14, transition: 'all 0.2s',
+                  background: audience === a ? 'linear-gradient(135deg, var(--hm-rose), var(--hm-lavender))' : 'transparent',
+                  color: audience === a ? '#fff' : 'var(--hm-text-muted)',
+                  boxShadow: audience === a ? '0 2px 10px rgba(194,116,143,0.35)' : 'none',
+                }}
+              >
+                {a === 'psicologo' ? 'Psicólogo(a)' : 'Clínica'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Cards */}
+        <div className={`grid gap-6 ${current.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 max-w-3xl mx-auto'}`}>
+          {current.map(plan => (
+            <div
+              key={plan.key}
+              className="hm-card"
+              style={{
+                padding: '32px 28px',
+                position: 'relative',
+                border: plan.highlight ? '2px solid var(--hm-rose)' : '1.5px solid var(--hm-border)',
+                transform: plan.highlight ? 'translateY(-6px)' : 'none',
+                boxShadow: plan.highlight ? '0 12px 40px rgba(194,116,143,0.18)' : undefined,
+              }}
+            >
+              {plan.highlight && (
+                <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, var(--hm-rose), var(--hm-lavender))', color: '#fff', fontSize: 11, fontWeight: 800, padding: '4px 16px', borderRadius: 20, whiteSpace: 'nowrap', letterSpacing: '0.04em' }}>
+                  ✦ MAIS POPULAR
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h3 className="hm-heading font-bold text-xl mb-1" style={{ color: 'var(--hm-dark)' }}>{plan.name}</h3>
+                {'psychologists' in plan
+                  ? <p style={{ color: 'var(--hm-text-muted)', fontSize: 13 }}>{(plan as any).psychologists} psicólogos · {plan.patients} pacientes</p>
+                  : <p style={{ color: 'var(--hm-text-muted)', fontSize: 13 }}>Até {plan.patients} pacientes ativos</p>
+                }
+              </div>
+
+              <div className="mb-6">
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontSize: 13, color: 'var(--hm-text-muted)', fontWeight: 500 }}>R$</span>
+                  <span className="hm-heading" style={{ fontSize: 44, fontWeight: 900, color: 'var(--hm-dark)', lineHeight: 1 }}>
+                    {plan.price.toLocaleString('pt-BR')}
+                  </span>
+                  <span style={{ fontSize: 13, color: 'var(--hm-text-muted)' }}>/mês</span>
+                </div>
+                {plan.setupFee > 0
+                  ? <p style={{ fontSize: 12, color: 'var(--hm-text-muted)', marginTop: 4 }}>+ R$ {plan.setupFee} de adesão (única vez)</p>
+                  : <p style={{ fontSize: 12, color: 'var(--hm-teal)', marginTop: 4, fontWeight: 600 }}>✓ Sem taxa de adesão</p>
+                }
+              </div>
+
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {plan.features.map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--hm-dark)' }}>
+                    <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--hm-teal-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--hm-teal)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={`/health-mind-app/checkout/${plan.key}`}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  width: '100%', padding: '14px 20px', borderRadius: 12, fontWeight: 700,
+                  fontSize: 15, textDecoration: 'none', transition: 'opacity 0.2s',
+                  background: plan.highlight ? 'linear-gradient(135deg, var(--hm-rose), var(--hm-lavender))' : 'var(--hm-dark)',
+                  color: '#fff',
+                  boxShadow: plan.highlight ? '0 4px 16px rgba(194,116,143,0.35)' : 'none',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >
+                Assinar agora
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* Rodapé dos planos */}
+        <div className="mt-12 text-center">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 12, background: 'var(--hm-card)', border: '1px solid var(--hm-border)', fontSize: 13, color: 'var(--hm-text-muted)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--hm-teal)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Pagamento seguro via Mercado Pago · Conta criada automaticamente após confirmação
+          </div>
+          <p className="mt-4" style={{ fontSize: 13, color: 'var(--hm-text-muted)' }}>
+            Precisa de mais pacientes? Adicione slots extras por R$ 50/mês cada.{' '}
+            <a href="mailto:contato@losningtech.com.br" style={{ color: 'var(--hm-rose)', fontWeight: 600 }}>Fale conosco</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
@@ -1017,6 +1215,7 @@ export default function HealthMindPage() {
       <AISection />
       <SecuritySection />
       <GeneralFeaturesSection />
+      <PricingSection />
       <ResourcesSection />
       <CTASection />
       <Footer />
