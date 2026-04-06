@@ -1,10 +1,11 @@
 "use client"
 
+import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
-export default function CheckoutPendingPage() {
+function PendenteContent() {
   const searchParams = useSearchParams()
   const paymentId = searchParams.get("payment_id")
 
@@ -44,5 +45,13 @@ export default function CheckoutPendingPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutPendingPage() {
+  return (
+    <Suspense>
+      <PendenteContent />
+    </Suspense>
   )
 }

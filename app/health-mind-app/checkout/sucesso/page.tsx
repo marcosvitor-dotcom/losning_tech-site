@@ -1,17 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
-export default function CheckoutSuccessPage() {
+function SucessoContent() {
   const searchParams = useSearchParams()
-  const paymentId     = searchParams.get("payment_id")
-  const status        = searchParams.get("status")
+  const paymentId = searchParams.get("payment_id")
   const [checked, setChecked] = useState(false)
 
-  // Consulta o status real no MP para confirmar aprovação
   useEffect(() => {
     if (!paymentId) { setChecked(true); return }
     fetch(`/api/hm-checkout/status/${paymentId}`)
@@ -23,7 +21,6 @@ export default function CheckoutSuccessPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#F4F0F8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
       <div style={{ background: "#fff", borderRadius: 20, padding: "48px 36px", maxWidth: 480, width: "100%", textAlign: "center", boxShadow: "0 8px 40px rgba(0,0,0,0.1)" }}>
-        {/* Ícone de sucesso */}
         <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg, #2A9D8F, #1B7A6E)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 6L9 17l-5-5" />
@@ -65,5 +62,13 @@ export default function CheckoutSuccessPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense>
+      <SucessoContent />
+    </Suspense>
   )
 }

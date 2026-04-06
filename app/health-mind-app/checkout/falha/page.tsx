@@ -1,10 +1,11 @@
 "use client"
 
+import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
-export default function CheckoutFailurePage() {
+function FalhaContent() {
   const searchParams = useSearchParams()
   const planKey = searchParams.get("plan") || ""
 
@@ -43,5 +44,13 @@ export default function CheckoutFailurePage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutFailurePage() {
+  return (
+    <Suspense>
+      <FalhaContent />
+    </Suspense>
   )
 }
