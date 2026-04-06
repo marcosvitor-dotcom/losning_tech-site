@@ -70,6 +70,14 @@ interface TherapeuticReport {
   periodStart?: string
   periodEnd?: string
   createdAt?: string
+  sections?: {
+    temasAbordados?: string
+    sentimentosIdentificados?: string
+    padroesComportamentais?: string
+    pontosDeAtencao?: string
+    evolucaoObservada?: string
+    sugestoesParaSessao?: string
+  }
 }
 
 interface PsychologistProfile {
@@ -834,6 +842,7 @@ function ReportsTab({ token, userId }: { token: string; userId: string }) {
   const [generating, setGenerating] = useState(false)
   const [genMsg, setGenMsg] = useState("")
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [expandedDetail, setExpandedDetail] = useState<TherapeuticReport | null>(null)
   const [finData, setFinData] = useState<{ monthRevenue: number; yearRevenue: number; completedSessions: number; pendingSessions: number } | null>(null)
 
   const load = useCallback(async () => {
@@ -874,13 +883,28 @@ function ReportsTab({ token, userId }: { token: string; userId: string }) {
 
   useEffect(() => { load() }, [load])
 
+  const toggleExpand = async (reportId: string, alreadyHasSections: boolean) => {
+    if (expanded === reportId) { setExpanded(null); setExpandedDetail(null); return }
+    setExpanded(reportId)
+    if (alreadyHasSections) return
+    try {
+      const res = await fetch(`${BASE}/ai/therapeutic-report/${reportId}`, { headers: h(token) })
+      const data = await res.json()
+      const detail: TherapeuticReport = data?.data ?? data
+      setExpandedDetail(detail)
+      setReports(prev => prev.map(r => r._id === reportId ? { ...r, ...detail } : r))
+    } catch { /* show summary only */ }
+  }
+
   const loadReports = async (patientId: string) => {
-    setSelectedPatient(patientId); setReports([]); setExpanded(null)
+    setSelectedPatient(patientId); setReports([]); setExpanded(null); setExpandedDetail(null)
     try {
       const res = await fetch(`${BASE}/ai/therapeutic-reports/${patientId}`, { headers: h(token) })
       const data = await res.json()
-      const raw: any[] = data?.data ?? data ?? []
-      setReports(Array.isArray(raw) ? raw : [])
+      // API returns { success, data: { reports: [...], total } } or { success, data: [...] }
+      const payload = data?.data ?? data
+      const raw: any[] = payload?.reports ?? (Array.isArray(payload) ? payload : [])
+      setReports(raw)
     } catch { setReports([]) }
   }
 
@@ -888,17 +912,27 @@ function ReportsTab({ token, userId }: { token: string; userId: string }) {
     if (!selectedPatient) return
     setGenerating(true); setGenMsg("")
     try {
-      const res = await fetch(`${BASE}/ai/generate-therapeutic-report`, {
-        method: "POST",
-        headers: { ...h(token), "Content-Type": "application/json" },
-        body: JSON.stringify({ patientId: selectedPatient }),
-      })
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 160000) // 2m40s
+      let res: Response
+      try {
+        res = await fetch(`${BASE}/ai/generate-therapeutic-report`, {
+          method: "POST",
+          headers: { ...h(token), "Content-Type": "application/json" },
+          body: JSON.stringify({ patientId: selectedPatient }),
+          signal: controller.signal,
+        })
+      } finally { clearTimeout(timeout) }
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || "Erro ao gerar relatório")
-      setGenMsg("Relatório gerado com sucesso! Pode levar alguns instantes para ficar disponível.")
+      if (!res.ok) throw new Error(data.message || data.error || "Erro ao gerar relatório")
+      setGenMsg("Relatório gerado com sucesso!")
       await loadReports(selectedPatient)
     } catch (e: any) {
-      setGenMsg(e.message || "Erro ao gerar relatório")
+      if (e.name === "AbortError") {
+        setGenMsg("A geração demorou muito. Aguarde alguns minutos e atualize a lista.")
+      } else {
+        setGenMsg(e.message || "Erro ao gerar relatório")
+      }
     } finally { setGenerating(false) }
   }
 
@@ -974,7 +1008,7 @@ function ReportsTab({ token, userId }: { token: string; userId: string }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {reports.map(r => (
                     <div key={r._id} style={{ background: C.bg, borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}` }}>
-                      <button onClick={() => setExpanded(expanded === r._id ? null : r._id)} style={{ width: "100%", padding: "14px 16px", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, textAlign: "left" }}>
+                      <button onClick={() => r.status === "completed" && toggleExpand(r._id, !!r.sections)} disabled={r.status !== "completed"} style={{ width: "100%", padding: "14px 16px", background: "none", border: "none", cursor: r.status === "completed" ? "pointer" : "default", display: "flex", alignItems: "center", gap: 12, textAlign: "left" }}>
                         <div style={{ width: 32, height: 32, borderRadius: 8, background: r.status === "completed" ? C.tealLight : r.status === "generating" ? "#FFF4E6" : "#FFF0F0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           <Icon d={r.status === "completed" ? ICONS.check : r.status === "generating" ? ICONS.clock : ICONS.x} color={r.status === "completed" ? C.teal : r.status === "generating" ? "#FF9800" : "#E53935"} size={14} />
                         </div>
@@ -988,9 +1022,42 @@ function ReportsTab({ token, userId }: { token: string; userId: string }) {
                         </div>
                         <Icon d={expanded === r._id ? ICONS.chevLeft : ICONS.chevRight} size={14} color={C.muted} />
                       </button>
-                      {expanded === r._id && r.summary && (
+                      {expanded === r._id && (
                         <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${C.border}` }}>
-                          <p style={{ fontSize: 13, color: C.dark, lineHeight: 1.6, margin: "12px 0 0", whiteSpace: "pre-wrap" }}>{r.summary}</p>
+                          {r.summary && (
+                            <div style={{ background: C.tealLight, borderRadius: 10, padding: "10px 14px", margin: "12px 0 14px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: C.teal, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Resumo</div>
+                              <p style={{ fontSize: 13, color: C.dark, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{r.summary}</p>
+                            </div>
+                          )}
+                          {r.sections && (() => {
+                            const sections = [
+                              { key: "temasAbordados",         label: "Temas Abordados",           color: "#4A90E2", bg: "#EBF4FD" },
+                              { key: "sentimentosIdentificados", label: "Sentimentos Identificados", color: "#E91E63", bg: "#FCE4EC" },
+                              { key: "padroesComportamentais",  label: "Padrões Comportamentais",   color: "#FF9800", bg: "#FFF3E0" },
+                              { key: "pontosDeAtencao",         label: "Pontos de Atenção",          color: "#E53935", bg: "#FFEBEE" },
+                              { key: "evolucaoObservada",       label: "Evolução Observada",         color: "#2A9D8F", bg: "#E0F7F4" },
+                              { key: "sugestoesParaSessao",     label: "Sugestões para a Sessão",    color: "#9C27B0", bg: "#F3E5F5" },
+                            ]
+                            return (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                {sections.map(s => {
+                                  const text = (r.sections as any)[s.key]
+                                  if (!text) return null
+                                  return (
+                                    <div key={s.key} style={{ background: s.bg, borderRadius: 10, padding: "10px 14px" }}>
+                                      <div style={{ fontSize: 11, fontWeight: 700, color: s.color, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>{s.label}</div>
+                                      <p style={{ fontSize: 13, color: C.dark, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{text}</p>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )
+                          })()}
+                          <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}`, fontSize: 11, color: C.muted, display: "flex", alignItems: "center", gap: 6 }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            Relatório gerado por IA · Dados clínicos criptografados
+                          </div>
                         </div>
                       )}
                     </div>
