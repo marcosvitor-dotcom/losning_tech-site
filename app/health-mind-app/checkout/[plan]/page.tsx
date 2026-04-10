@@ -86,8 +86,6 @@ export default function CheckoutPage() {
   // form state
   const [name, setName]         = useState("")
   const [email, setEmail]       = useState("")
-  const [password, setPassword] = useState("")
-  const [confirm, setConfirm]   = useState("")
   const [cnpj, setCnpj]         = useState("")
   const [crp, setCrp]           = useState("")
   const [phone, setPhone]       = useState("")
@@ -108,17 +106,11 @@ export default function CheckoutPage() {
 
   const validate = () => {
     const e: Record<string, string> = {}
-    if (!name.trim())    e.name    = "Nome é obrigatório"
-    if (!email.trim())   e.email   = "E-mail é obrigatório"
+    if (!name.trim())  e.name  = "Nome é obrigatório"
+    if (!email.trim()) e.email = "E-mail é obrigatório"
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "E-mail inválido"
-    if (!password)       e.password = "Senha é obrigatória"
-    else if (password.length < 8) e.password = "Mínimo 8 caracteres"
-    else if (!/[A-Z]/.test(password)) e.password = "Inclua ao menos uma letra maiúscula"
-    else if (!/[0-9]/.test(password)) e.password = "Inclua ao menos um número"
-    else if (!/[^A-Za-z0-9]/.test(password)) e.password = "Inclua ao menos um caractere especial"
-    if (confirm !== password) e.confirm = "As senhas não coincidem"
     if (isClinic && !cnpj.trim()) e.cnpj = "CNPJ é obrigatório para clínicas"
-    if (!isClinic && !crp.trim()) e.crp = "CRP é obrigatório para psicólogos(as)"
+    if (!isClinic && !crp.trim()) e.crp  = "CRP é obrigatório para psicólogos(as)"
     return e
   }
 
@@ -134,7 +126,7 @@ export default function CheckoutPage() {
       const res = await fetch("/api/hm-checkout/create-preference", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planKey, name: name.trim(), email: email.trim(), password, cnpj: cnpj || null, crp: crp || null, phone: phone || null }),
+        body: JSON.stringify({ planKey, name: name.trim(), email: email.trim(), cnpj: cnpj || null, crp: crp || null, phone: phone || null }),
       })
       const data = await res.json()
 
@@ -187,10 +179,9 @@ export default function CheckoutPage() {
               </h2>
               <InputField label="Nome completo" value={name} onChange={setName} placeholder="Seu nome" error={errors.name} required />
               <InputField label="E-mail" type="email" value={email} onChange={setEmail} placeholder="seu@email.com" error={errors.email} required />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <InputField label="Senha" type="password" value={password} onChange={setPassword} placeholder="••••••••" error={errors.password} required hint="Mín. 8 chars, 1 maiúscula, 1 número, 1 especial" />
-                <InputField label="Confirmar senha" type="password" value={confirm} onChange={setConfirm} placeholder="••••••••" error={errors.confirm} required />
-              </div>
+              <p style={{ fontSize: 12, color: "#8C7F99", marginTop: -8, marginBottom: 8 }}>
+                Após a confirmação do pagamento, você receberá um e-mail para definir sua senha de acesso.
+              </p>
             </div>
 
             <div style={{ background: "#fff", borderRadius: 16, padding: "24px 22px", boxShadow: "0 2px 16px rgba(0,0,0,0.06)", marginBottom: 24 }}>
@@ -292,8 +283,8 @@ export default function CheckoutPage() {
           <div style={{ background: "#fff", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 6px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", gap: 8 }}>
             {[
               { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", text: "Pagamento seguro via Mercado Pago" },
-              { icon: "M20 6L9 17l-5-5", text: "Conta criada automaticamente" },
-              { icon: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2", text: "Acesso imediato após confirmação" },
+              { icon: "M20 6L9 17l-5-5", text: "Conta criada automaticamente após pagamento" },
+              { icon: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6", text: "E-mail enviado para definir sua senha" },
             ].map(({ icon, text }) => (
               <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#8C7F99" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2A9D8F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -13,10 +13,12 @@ const PLANS: Record<string, { name: string; monthlyAmount: number; setupFee: num
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { planKey, name, email, password, cnpj, crp, phone } = body
+    // A senha NÃO é mais recebida aqui — o usuário define a senha após o pagamento
+    // via e-mail de definição de senha enviado automaticamente pelo webhook
+    const { planKey, name, email, cnpj, crp, phone } = body
 
-    if (!planKey || !name || !email || !password) {
-      return NextResponse.json({ success: false, message: "Campos obrigatórios: planKey, name, email, password" }, { status: 400 })
+    if (!planKey || !name || !email) {
+      return NextResponse.json({ success: false, message: "Campos obrigatórios: planKey, name, email" }, { status: 400 })
     }
 
     const plan = PLANS[planKey]
@@ -58,26 +60,23 @@ export async function POST(req: NextRequest) {
     const prefResult = await preference.create({
       body: {
         items,
-        payer: {
-          name,
-          email,
-        },
+        payer: { name, email },
         back_urls: {
           success: `${baseUrl}/health-mind-app/checkout/sucesso`,
           failure: `${baseUrl}/health-mind-app/checkout/falha`,
           pending: `${baseUrl}/health-mind-app/checkout/pendente`,
         },
         auto_return: "approved",
-        // Passamos os dados de registro como metadata para o webhook
+        // Metadata sem senha — o webhook criará a conta com senha temporária
+        // e disparará o e-mail de definição de senha para o usuário
         metadata: {
           planKey,
           subscriberType: plan.type,
           name,
           email,
-          password,        // será usado no webhook para criar a conta
-          cnpj:    cnpj    || null,
-          crp:     crp     || null,
-          phone:   phone   || null,
+          cnpj:  cnpj  || null,
+          crp:   crp   || null,
+          phone: phone || null,
         },
         notification_url: `${baseUrl}/api/hm-checkout/webhook`,
         statement_descriptor: "HEALTHMIND",

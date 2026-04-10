@@ -3,12 +3,34 @@ import MercadoPago, { Payment } from "mercadopago"
 
 const HM_API = process.env.HEALTH_MIND_API_URL || "https://health-mind-api.vercel.app"
 
+// ─── Gera senha temporária aleatória segura ───────────────────────────────────
+// A senha temporária atende aos requisitos mínimos da API (8+ chars, maiúscula, número, especial)
+// O usuário vai redefini-la via e-mail de "definir senha" enviado logo após a criação da conta
+function generateTempPassword(): string {
+  const upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  const lower   = "abcdefghijklmnopqrstuvwxyz"
+  const digits  = "0123456789"
+  const special = "!@#$%"
+  const all     = upper + lower + digits + special
+  const rand    = () => Math.floor(Math.random() * all.length)
+  // Garante ao menos 1 de cada categoria exigida
+  const chars = [
+    upper[Math.floor(Math.random() * upper.length)],
+    digits[Math.floor(Math.random() * digits.length)],
+    special[Math.floor(Math.random() * special.length)],
+    ...Array.from({ length: 9 }, () => all[rand()]),
+  ]
+  // Embaralha para não ter padrão fixo
+  return chars.sort(() => Math.random() - 0.5).join("")
+}
+
 // ─── Webhook do Mercado Pago ──────────────────────────────────────────────────
 // Fluxo após pagamento aprovado:
 // 1. Consulta payment no MP para pegar metadata
-// 2. Registra o usuário na API Health Mind
-// 3. Cria a assinatura via API Health Mind
-// 4. Registra o pagamento da assinatura como confirmado
+// 2. Registra o usuário na API Health Mind com senha temporária
+// 3. Cria a assinatura via API Health Mind (usando HM_ADMIN_TOKEN)
+// 4. Dispara forgot-password para o usuário definir a própria senha
+//    (o usuário recebe e-mail: "Sua conta foi criada, clique aqui para definir sua senha")
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const meta = payment.metadata as any
-    if (!meta?.email || !meta?.plan_key || !meta?.password) {
+    if (!meta?.email || !meta?.plan_key) {
       console.error("[webhook] metadata incompleta:", meta)
       return NextResponse.json({ received: true, warning: "metadata incompleta" })
     }
@@ -50,22 +72,24 @@ export async function POST(req: NextRequest) {
     const subscriberType = meta.subscriber_type || meta.subscriberType  // "psychologist" | "clinic"
     const name           = meta.name
     const email          = meta.email
-    const password       = meta.password
     const cnpj           = meta.cnpj   || null
     const crp            = meta.crp    || null
     const phone          = meta.phone  || null
 
     // ── 1. Registra o usuário na API Health Mind ──────────────────────────────
+    // Usa senha temporária — o usuário vai redefini-la via e-mail enviado no passo 3
+    const tempPassword = generateTempPassword()
+
     let registerBody: Record<string, any>
     let registerEndpoint: string
 
     if (subscriberType === "clinic") {
       registerEndpoint = `${HM_API}/api/auth/register/clinic`
-      registerBody = { name, email, password, phone, cnpj }
+      registerBody = { name, email, password: tempPassword, phone, cnpj }
     } else {
       registerEndpoint = `${HM_API}/api/auth/register/psychologist`
-      // Psicólogos independentes não exigem clinicId obrigatório — passamos vazio
-      registerBody = { name, email, password, phone, crp, clinicId: undefined }
+      // clinicId omitido — psicólogo independente (sem clínica vinculada)
+      registerBody = { name, email, password: tempPassword, phone, crp }
     }
 
     const registerRes = await fetch(registerEndpoint, {
@@ -76,7 +100,7 @@ export async function POST(req: NextRequest) {
     const registerData = await registerRes.json()
 
     if (!registerRes.ok && !registerData?.data?.user) {
-      // Se o email já existe pode ser re-tentativa do webhook — tenta logar para pegar o ID
+      // Se o email já existe pode ser re-tentativa do webhook — continua para garantir a assinatura
       if (registerData?.message?.toLowerCase().includes("já existe") || registerData?.message?.toLowerCase().includes("already")) {
         console.warn("[webhook] Usuário já existe, pulando criação:", email)
       } else {
@@ -91,8 +115,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true, warning: "no_user_id" })
     }
 
-    const token = registerData?.data?.token
-
     // ── 2. Cria a assinatura via API Health Mind ──────────────────────────────
     const subscriberModel = subscriberType === "clinic" ? "Clinic" : "Psychologist"
 
@@ -100,9 +122,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Usa o token do usuário recém-criado — a API pode exigir admin aqui
-        // Se necessário, use um token de admin via env
-        ...(process.env.HM_ADMIN_TOKEN ? { Authorization: `Bearer ${process.env.HM_ADMIN_TOKEN}` } : { Authorization: `Bearer ${token}` }),
+        Authorization: `Bearer ${process.env.HM_ADMIN_TOKEN}`,
       },
       body: JSON.stringify({
         subscriberId: userId,
@@ -115,10 +135,23 @@ export async function POST(req: NextRequest) {
 
     if (!subRes.ok) {
       console.error("[webhook] Falha ao criar assinatura:", subData)
-      // Não bloqueia — retorna sucesso para MP não re-enviar
+      // Não bloqueia — retorna sucesso para o MP não re-enviar o webhook
     }
 
-    console.info(`[webhook] ✅ Usuário criado e assinatura ativada: ${email} (${planKey}) | MP Payment: ${paymentId}`)
+    // ── 3. Dispara e-mail para o usuário definir a própria senha ──────────────
+    // O forgot-password da API envia um e-mail com link/deep-link para redefinição
+    try {
+      await fetch(`${HM_API}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+    } catch (fpErr) {
+      // Não crítico — o admin pode reenviar manualmente se necessário
+      console.warn("[webhook] Falha ao disparar forgot-password:", fpErr)
+    }
+
+    console.info(`[webhook] ✅ Conta criada, assinatura ativada e e-mail de senha enviado: ${email} (${planKey}) | MP Payment: ${paymentId}`)
     return NextResponse.json({ received: true, success: true, userId, planKey })
   } catch (err: any) {
     console.error("[webhook] erro interno:", err)
