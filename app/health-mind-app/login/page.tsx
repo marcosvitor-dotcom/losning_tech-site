@@ -21,6 +21,7 @@ export default function LoginPage() {
     if (user) {
       if (user.role === "psychologist") router.replace("/health-mind-app/dashboard/psicologo")
       else if (user.role === "clinic") router.replace("/health-mind-app/dashboard/clinica")
+      else if (user.role === "admin") router.replace("/health-mind-app/dashboard/admin")
     }
   }, [router])
 
@@ -39,8 +40,9 @@ export default function LoginPage() {
 
       if (user.role === "psychologist") router.push("/health-mind-app/dashboard/psicologo")
       else if (user.role === "clinic") router.push("/health-mind-app/dashboard/clinica")
+      else if (user.role === "admin") router.push("/health-mind-app/dashboard/admin")
       else {
-        setEmailError("Acesso restrito a psicólogos e clínicas.")
+        setEmailError("Acesso restrito a psicólogos, clínicas e administradores.")
       }
     } catch (error: any) {
       const code = error.errorCode || ""
@@ -99,7 +101,7 @@ export default function LoginPage() {
           Acessar plataforma
         </h2>
         <p style={{ color: "#8C7F99", fontSize: 13, marginBottom: 24 }}>
-          Área exclusiva para psicólogos e clínicas
+          Área exclusiva para psicólogos, clínicas e administradores
         </p>
 
         <form onSubmit={handleLogin} noValidate>
