@@ -34,21 +34,41 @@ function generateTempPassword(): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const { searchParams } = new URL(req.url)
+    const qId    = searchParams.get("id")
+    const qTopic = searchParams.get("topic")
+    const qDataId = searchParams.get("data.id")
+    const qType  = searchParams.get("type")
+
+    // Tenta ler body JSON (pode ser vazio em notificações via query param)
+    let body: any = {}
+    try { body = await req.json() } catch { /* body vazio — ok */ }
 
     // MP envia: { action: "payment.created"|"payment.updated", data: { id } }
-    // ou formato antigo: { topic: "payment", resource: ".../{id}" }
+    // ou formato antigo via query param: ?id=xxx&topic=payment
+    // ou formato moderno via query param: ?data.id=xxx&type=payment
     let paymentId: string | null = null
+    let topicOrType: string | null = null
 
     if (body?.data?.id) {
-      paymentId = String(body.data.id)
+      paymentId   = String(body.data.id)
+      topicOrType = body.type || null
     } else if (body?.resource) {
       const parts = String(body.resource).split("/")
-      paymentId = parts[parts.length - 1]
+      paymentId   = parts[parts.length - 1]
+      topicOrType = body.topic || null
+    } else if (qDataId) {
+      // Formato moderno via query param: ?data.id=xxx&type=payment
+      paymentId   = qDataId
+      topicOrType = qType
+    } else if (qId) {
+      // Formato legado via query param: ?id=xxx&topic=payment
+      paymentId   = qId
+      topicOrType = qTopic
     }
 
     // Confirma que é notificação de pagamento
-    if (!paymentId || (body?.type && body.type !== "payment")) {
+    if (!paymentId || (topicOrType && topicOrType !== "payment")) {
       return NextResponse.json({ received: true })
     }
 
@@ -99,17 +119,36 @@ export async function POST(req: NextRequest) {
     })
     const registerData = await registerRes.json()
 
-    if (!registerRes.ok && !registerData?.data?.user) {
-      // Se o email já existe pode ser re-tentativa do webhook — continua para garantir a assinatura
-      if (registerData?.message?.toLowerCase().includes("já existe") || registerData?.message?.toLowerCase().includes("already")) {
-        console.warn("[webhook] Usuário já existe, pulando criação:", email)
+    let userId = registerData?.data?.user?._id
+
+    if (!registerRes.ok && !userId) {
+      const msg = registerData?.message?.toLowerCase() || ""
+      const alreadyExists = msg.includes("já existe") || msg.includes("already") || msg.includes("já cadastrado") || msg.includes("already registered")
+
+      if (alreadyExists) {
+        // Re-tentativa do webhook — usuário já existe, faz login para obter o userId
+        console.warn("[webhook] Usuário já existe, obtendo userId via login:", email)
+        const loginEndpoint = subscriberType === "clinic"
+          ? `${HM_API}/api/auth/login/clinic`
+          : `${HM_API}/api/auth/login/psychologist`
+        const loginRes = await fetch(loginEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password: tempPassword }),
+        })
+        const loginData = await loginRes.json()
+        userId = loginData?.data?.user?._id
+        if (!userId) {
+          // Senha temporária diferente (re-tentativa com senha anterior) — apenas loga e segue
+          console.warn("[webhook] Login falhou (senha diferente em re-tentativa), assinatura pode já existir:", email)
+          return NextResponse.json({ received: true, warning: "existing_user_login_failed" })
+        }
       } else {
         console.error("[webhook] Falha ao criar usuário:", registerData)
         return NextResponse.json({ received: true, error: "register_failed", detail: registerData?.message }, { status: 200 })
       }
     }
 
-    const userId = registerData?.data?.user?._id
     if (!userId) {
       console.warn("[webhook] Não foi possível obter userId:", registerData)
       return NextResponse.json({ received: true, warning: "no_user_id" })
