@@ -5,7 +5,12 @@ import Lead from "@/lib/models/Lead"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, email, phone, company, message } = body
+    const { name, email, phone, company, message, interest, website } = body
+
+    // Honeypot anti-bot: campo oculto preenchido => descarta silenciosamente.
+    if (website) {
+      return NextResponse.json({ success: true }, { status: 201 })
+    }
 
     if (!name || !email || !message) {
       return NextResponse.json(
@@ -21,6 +26,7 @@ export async function POST(request: Request) {
       email,
       phone: phone || "",
       company: company || "",
+      interest: interest || "geral",
       message,
       source: "site",
       status: "new",
@@ -37,7 +43,6 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  // Valida token JWT da API Health Mind
   const auth = request.headers.get("authorization")
   if (!auth?.startsWith("Bearer ")) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 })

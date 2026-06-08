@@ -1,16 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  reactStrictMode: true,
   images: {
-    unoptimized: false,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com',
-        pathname: '/**',
-      },
+      { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "www.health-mind-app.com" },
     ],
   },
 }
