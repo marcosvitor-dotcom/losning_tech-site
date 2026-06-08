@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { connectDB } from "@/lib/mongodb"
 import Lead from "@/lib/models/Lead"
+import { sendLeadNotification } from "@/lib/mailer"
 
 export async function POST(request: Request) {
   try {
@@ -31,6 +32,13 @@ export async function POST(request: Request) {
       source: "site",
       status: "new",
     })
+
+    // Notifica o comercial por e-mail. Falha aqui não invalida o lead já salvo.
+    try {
+      await sendLeadNotification({ name, email, phone, company, interest, message })
+    } catch (mailError) {
+      console.error("Lead salvo, mas falha ao enviar e-mail de notificação:", mailError)
+    }
 
     return NextResponse.json({ success: true, id: lead._id }, { status: 201 })
   } catch (error) {
