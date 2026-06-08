@@ -4,6 +4,7 @@ import "./globals.css"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
 import { ToastProvider } from "@/components/providers/ToastProvider"
+import { Analytics } from "@vercel/analytics/next"
 import { company } from "@/lib/data/company"
 
 const inter = Inter({
@@ -62,6 +63,7 @@ export default function RootLayout({
         <main>{children}</main>
         <Footer />
         <ToastProvider />
+        <Analytics />
       </body>
     </html>
   )
